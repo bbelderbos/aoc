@@ -19,14 +19,16 @@ fn parse_input(input: &str) -> (Vec<i32>, Vec<i32>) {
 
 fn solve_part1(col1: &[i32], col2: &[i32]) -> i32 {
     col1.iter()
-    .zip(col2.iter())
-    .map(|(a, b)| (a - b).abs()) // Calculate absolute difference
-    .sum() // Sum all differences
+        .zip(col2.iter())
+        .map(|(a, b)| (a - b).abs())
+        .sum()
 }
 
-/*fn solve_part2(data: &[i32]) -> i32 {
-    1
-}*/
+fn solve_part2(col1: &[i32], col2: &[i32]) -> i32 {
+    col1.iter()
+        .map(|&num| col2.iter().filter(|&&x| x == num).count() as i32 * num)
+        .sum()
+}
 
 fn main() {
     let input = fs::read_to_string("input.txt").expect("Failed to read input file");
@@ -34,8 +36,8 @@ fn main() {
     let part1 = solve_part1(&col1, &col2);
     println!("Part 1: {}", part1);
 
-    //let part2 = solve_part2(&data);
-    //println!("Part 2: {}", part2);
+    let part2 = solve_part2(&col1, &col2);
+    println!("Part 2: {}", part2);
 }
 
 #[cfg(test)]
@@ -54,6 +56,6 @@ mod tests {
 "#.trim_start();
         let (col1, col2) = parse_input(&example_input);
         assert_eq!(solve_part1(&col1, &col2), 11);
-        //assert_eq!(solve_part2(&data), 5);  // Replace with Part 2 example output
+        assert_eq!(solve_part2(&col1, &col2), 31);
     }
 }
