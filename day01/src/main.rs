@@ -1,4 +1,5 @@
 use std::fs;
+use std::collections::HashMap;
 
 fn parse_input(input: &str) -> (Vec<i32>, Vec<i32>) {
     let mut col1 = Vec::new();
@@ -25,8 +26,13 @@ fn solve_part1(col1: &[i32], col2: &[i32]) -> i32 {
 }
 
 fn solve_part2(col1: &[i32], col2: &[i32]) -> i32 {
+    let mut frequency_map = HashMap::new();
+    for &num in col2 {
+        *frequency_map.entry(num).or_insert(0) += 1;
+    }
+
     col1.iter()
-        .map(|&num| col2.iter().filter(|&&x| x == num).count() as i32 * num)
+        .map(|&num| frequency_map.get(&num).unwrap_or(&0) * num)
         .sum()
 }
 
