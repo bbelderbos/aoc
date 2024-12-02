@@ -2,6 +2,7 @@ use std::fs;
 
 const MAX_DELTA: i32 = 3;
 
+
 fn parse_input(input: &str) -> Vec<Vec<i32>> {
     input
         .lines()
@@ -13,7 +14,7 @@ fn parse_input(input: &str) -> Vec<Vec<i32>> {
         .collect()
 }
 
-fn is_consistently_increasing_or_decreasing(vec: &[i32], max_delta: i32) -> bool {
+fn is_safe_report(vec: &[i32], max_delta: i32) -> bool {
     if vec.len() < 2 {
         return true;
     }
@@ -37,28 +38,49 @@ fn is_consistently_increasing_or_decreasing(vec: &[i32], max_delta: i32) -> bool
 }
 
 
-fn solve_part1(data: Vec<Vec<i32>>) -> usize {
+fn is_safe_report_with_fault_margin(vec: &[i32], max_delta: i32) -> bool {
+    // not sure if better way but let's brute force it first
+    for i in 0..vec.len() {
+        // Create a new slice without the element at index `i`
+        let reduced_vec: Vec<i32> = vec
+            .iter()
+            .enumerate()
+            .filter(|&(idx, _)| idx != i) // Exclude the item at index `i`
+            .map(|(_, &val)| val)
+            .collect();
+
+        // reuse part1 to validate the reduced vec
+        if is_safe_report(&reduced_vec, max_delta) {
+            return true;
+        }
+    }
+    false
+}
+
+
+fn solve_part1(data: &[Vec<i32>]) -> usize {
     data.iter()
-        .filter(|vec| is_consistently_increasing_or_decreasing(vec.as_slice(), MAX_DELTA))
+        .filter(|vec| is_safe_report(vec.as_slice(), MAX_DELTA))
         .count()
 }
 
 
-/*fn solve_part2(data: &[i32]) -> i32 {
-    *data.iter().max().unwrap()
-}*/
+fn solve_part2(data: Vec<Vec<i32>>) -> usize {
+    data.iter()
+        .filter(|vec| is_safe_report_with_fault_margin(vec.as_slice(), MAX_DELTA))
+        .count()
+}
 
 fn main() {
     let input = fs::read_to_string("input.txt").expect("Failed to read input file");
     let data = parse_input(&input);
 
-    let part1 = solve_part1(data);
+    let part1 = solve_part1(&data);
     println!("Part 1: {}", part1);
 
-    /*
-    let part2 = solve_part2(&data);
+    let part2 = solve_part2(data);
     println!("Part 2: {}", part2);
-    */
+
 }
 
 #[cfg(test)]
@@ -77,7 +99,7 @@ mod tests {
 "#.trim_start();
         let data = parse_input(example_input);
 
-        assert_eq!(solve_part1(data), 2);
-        //assert_eq!(solve_part2(&data), 5);
+        assert_eq!(solve_part1(&data), 2);
+        assert_eq!(solve_part2(data), 4);
     }
 }
