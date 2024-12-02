@@ -24,13 +24,14 @@ fn is_safe_report(vec: &[i32], max_delta: i32) -> bool {
 
     for pair in vec.windows(2) {
         let delta = pair[1] - pair[0];
+        if delta.abs() < 1 || delta.abs() > max_delta {
+            return false;
+        }
+
         if delta > 0 {
             is_still_decreasing = false;
         } else if delta < 0 {
             is_still_increasing = false;
-        }
-        if delta.abs() < 1 || delta.abs() > max_delta {
-            return false;
         }
     }
 
@@ -39,18 +40,11 @@ fn is_safe_report(vec: &[i32], max_delta: i32) -> bool {
 
 
 fn is_safe_report_with_fault_margin(vec: &[i32], max_delta: i32) -> bool {
-    // not sure if better way but let's brute force it first
     for i in 0..vec.len() {
-        // Create a new slice without the element at index `i`
-        let reduced_vec: Vec<i32> = vec
-            .iter()
-            .enumerate()
-            .filter(|&(idx, _)| idx != i) // Exclude the item at index `i`
-            .map(|(_, &val)| val)
-            .collect();
+        let (left, right) = vec.split_at(i);
+        let reduced_slice = left.iter().chain(&right[1..]);
 
-        // reuse part1 to validate the reduced vec
-        if is_safe_report(&reduced_vec, max_delta) {
+        if is_safe_report(&reduced_slice.cloned().collect::<Vec<_>>(), max_delta) {
             return true;
         }
     }
@@ -65,7 +59,7 @@ fn solve_part1(data: &[Vec<i32>]) -> usize {
 }
 
 
-fn solve_part2(data: Vec<Vec<i32>>) -> usize {
+fn solve_part2(data: &[Vec<i32>]) -> usize {
     data.iter()
         .filter(|vec| is_safe_report_with_fault_margin(vec.as_slice(), MAX_DELTA))
         .count()
@@ -78,7 +72,7 @@ fn main() {
     let part1 = solve_part1(&data);
     println!("Part 1: {}", part1);
 
-    let part2 = solve_part2(data);
+    let part2 = solve_part2(&data);
     println!("Part 2: {}", part2);
 
 }
@@ -100,6 +94,6 @@ mod tests {
         let data = parse_input(example_input);
 
         assert_eq!(solve_part1(&data), 2);
-        assert_eq!(solve_part2(data), 4);
+        assert_eq!(solve_part2(&data), 4);
     }
 }
