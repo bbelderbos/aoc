@@ -2,7 +2,6 @@ use std::fs;
 
 const MAX_DELTA: i32 = 3;
 
-
 fn parse_input(input: &str) -> Vec<Vec<i32>> {
     input
         .lines()
@@ -38,7 +37,6 @@ fn is_safe_report(vec: &[i32], max_delta: i32) -> bool {
     is_still_increasing || is_still_decreasing
 }
 
-
 fn is_safe_report_with_fault_margin(vec: &[i32], max_delta: i32) -> bool {
     for i in 0..vec.len() {
         let (left, right) = vec.split_at(i);
@@ -51,13 +49,11 @@ fn is_safe_report_with_fault_margin(vec: &[i32], max_delta: i32) -> bool {
     false
 }
 
-
 fn solve_part1(data: &[Vec<i32>]) -> usize {
     data.iter()
         .filter(|vec| is_safe_report(vec.as_slice(), MAX_DELTA))
         .count()
 }
-
 
 fn solve_part2(data: &[Vec<i32>]) -> usize {
     data.iter()
@@ -74,7 +70,6 @@ fn main() {
 
     let part2 = solve_part2(&data);
     println!("Part 2: {}", part2);
-
 }
 
 #[cfg(test)]
@@ -90,7 +85,8 @@ mod tests {
 1 3 2 4 5
 8 6 4 4 1
 1 3 6 7 9
-"#.trim_start();
+"#
+        .trim_start();
         let data = parse_input(example_input);
 
         assert_eq!(solve_part1(&data), 2);
