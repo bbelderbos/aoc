@@ -1,6 +1,6 @@
+use std::env;
 use std::fs;
 use std::process::Command;
-use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -13,7 +13,10 @@ fn main() {
     let folder_name = format!("day{:02}", day);
 
     if fs::metadata(&folder_name).is_ok() {
-        eprintln!("Folder {} already exists. Use `cargo init` if you need to reinitialize it.", folder_name);
+        eprintln!(
+            "Folder {} already exists. Use `cargo init` if you need to reinitialize it.",
+            folder_name
+        );
         return;
     }
 
@@ -22,11 +25,7 @@ fn main() {
         return;
     }
 
-    if let Err(e) = Command::new("cargo")
-        .arg("init")
-        .arg(&folder_name)
-        .status()
-    {
+    if let Err(e) = Command::new("cargo").arg("init").arg(&folder_name).status() {
         eprintln!("Error running cargo init: {}", e);
         return;
     }
@@ -77,6 +76,8 @@ mod tests {
         return;
     }
 
-    println!("Project for Day {} created successfully with template code!", day);
+    println!(
+        "Project for Day {} created successfully with template code!",
+        day
+    );
 }
-

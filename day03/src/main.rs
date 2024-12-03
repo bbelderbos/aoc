@@ -1,5 +1,5 @@
-use std::fs;
 use regex::Regex;
+use std::fs;
 
 fn _extract_group(caps: &regex::Captures, idx: usize) -> Option<i32> {
     caps.get(idx)?.as_str().parse::<i32>().ok()
@@ -10,16 +10,10 @@ fn extract_multiplication_pairs(input: &str) -> Vec<(i32, i32)> {
     let re = Regex::new(pattern).unwrap();
     let matches: Vec<(i32, i32)> = re
         .captures_iter(input)
-        .filter_map(|caps| {
-            Some((
-                _extract_group(&caps, 1)?,
-                _extract_group(&caps, 2)?,
-            ))
-        })
+        .filter_map(|caps| Some((_extract_group(&caps, 1)?, _extract_group(&caps, 2)?)))
         .collect();
     matches
 }
-
 
 fn parse_enabled_chunks(input: &str) -> Vec<String> {
     let chunks: Vec<String> = input.split("do()").map(|x| x.to_string()).collect();

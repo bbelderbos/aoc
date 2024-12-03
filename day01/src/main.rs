@@ -1,13 +1,14 @@
-use std::fs;
 use std::collections::HashMap;
+use std::fs;
 
 fn parse_input(input: &str) -> (Vec<i32>, Vec<i32>) {
     let mut col1 = Vec::new();
     let mut col2 = Vec::new();
 
     for line in input.lines() {
-        let mut numbers = line.split_whitespace()
-                              .map(|num| num.parse::<i32>().unwrap());
+        let mut numbers = line
+            .split_whitespace()
+            .map(|num| num.parse::<i32>().unwrap());
         col1.push(numbers.next().unwrap());
         col2.push(numbers.next().unwrap());
     }
@@ -59,7 +60,8 @@ mod tests {
 1   3
 3   9
 3   3
-"#.trim_start();
+"#
+        .trim_start();
         let (col1, col2) = parse_input(&example_input);
         assert_eq!(solve_part1(&col1, &col2), 11);
         assert_eq!(solve_part2(&col1, &col2), 31);
