@@ -36,7 +36,7 @@ fn parse_enabled_chunks(input: &str) -> Vec<String> {
 }
 
 fn solve_part1(input: &str) -> i32 {
-    let data = extract_multiplication_pairs(&input);
+    let data = extract_multiplication_pairs(input);
     let mut result = 0;
     for (group1, group2) in data {
         result += group1 * group2;
@@ -45,7 +45,7 @@ fn solve_part1(input: &str) -> i32 {
 }
 
 fn solve_part2(input: &str) -> i32 {
-    let chunks = parse_enabled_chunks(&input);
+    let chunks = parse_enabled_chunks(input);
     let mut result = 0;
     for chunk in chunks {
         let data = extract_multiplication_pairs(&chunk);
