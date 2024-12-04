@@ -97,63 +97,41 @@ fn solve_part1(input: &str) -> usize {
     results
 }
 
-fn get_submatrices(
-    matrix: &Vec<Vec<char>>,
-    sub_rows: usize,
-    sub_cols: usize,
-) -> Vec<Vec<Vec<char>>> {
+fn count_matching_submatrices(matrix: &Vec<Vec<char>>) -> usize {
     let rows = matrix.len();
     let cols = matrix[0].len();
-    let mut submatrices = Vec::new();
+    let mut count = 0;
 
-    for i in 0..=(rows - sub_rows) {
-        for j in 0..=(cols - sub_cols) {
-            let submatrix: Vec<Vec<char>> = (i..i + sub_rows)
-                .map(|x| matrix[x][j..j + sub_cols].to_vec())
-                .collect();
-            submatrices.push(submatrix);
+    // we can skip the edges of the matrix
+    for i in 1..rows - 1 {
+        for j in 1..cols - 1 {
+            if matrix[i][j] != 'A' {
+                continue;
+            }
+            // check the valid 4 Xs around the A
+            if (matrix[i - 1][j - 1] == 'M'
+                && matrix[i - 1][j + 1] == 'S'
+                && matrix[i + 1][j - 1] == 'M'
+                && matrix[i + 1][j + 1] == 'S')
+                || (matrix[i - 1][j - 1] == 'S'
+                    && matrix[i - 1][j + 1] == 'M'
+                    && matrix[i + 1][j - 1] == 'S'
+                    && matrix[i + 1][j + 1] == 'M')
+                || (matrix[i - 1][j - 1] == 'M'
+                    && matrix[i - 1][j + 1] == 'M'
+                    && matrix[i + 1][j - 1] == 'S'
+                    && matrix[i + 1][j + 1] == 'S')
+                || (matrix[i - 1][j - 1] == 'S'
+                    && matrix[i - 1][j + 1] == 'S'
+                    && matrix[i + 1][j - 1] == 'M'
+                    && matrix[i + 1][j + 1] == 'M')
+            {
+                count += 1;
+            }
         }
     }
 
-    submatrices
-}
-
-fn match_submatrix(submatrix: &Vec<Vec<char>>) -> bool {
-    if submatrix[1][1] != 'A' {
-        return false;
-    }
-
-    // check valid Xs
-    if submatrix[0][0] == 'M'
-        && submatrix[2][2] == 'S'
-        && submatrix[0][2] == 'S'
-        && submatrix[2][0] == 'M'
-    {
-        return true;
-    }
-    if submatrix[0][0] == 'S'
-        && submatrix[2][2] == 'M'
-        && submatrix[0][2] == 'M'
-        && submatrix[2][0] == 'S'
-    {
-        return true;
-    }
-    if submatrix[2][0] == 'M'
-        && submatrix[0][2] == 'S'
-        && submatrix[0][0] == 'S'
-        && submatrix[2][2] == 'M'
-    {
-        return true;
-    }
-    if submatrix[2][0] == 'S'
-        && submatrix[0][2] == 'M'
-        && submatrix[0][0] == 'M'
-        && submatrix[2][2] == 'S'
-    {
-        return true;
-    }
-
-    false
+    count
 }
 
 fn solve_part2(input: &str) -> usize {
@@ -163,17 +141,7 @@ fn solve_part2(input: &str) -> usize {
         panic!("Invalid matrix: {}", err);
     }
 
-    let submatrices = get_submatrices(&matrix, 3, 3);
-
-    let mut results = 0;
-
-    for submatrix in &submatrices {
-        if match_submatrix(submatrix) {
-            results += 1;
-        }
-    }
-
-    results
+    count_matching_submatrices(&matrix)
 }
 
 fn main() {
