@@ -68,17 +68,62 @@ fn solve_part1(input: &str) -> i32 {
     middle_sum
 }
 
-// fn solve_part2(input: &str) -> i32 {
-//     todo!();
-// }
+fn fix_order(order: &Vec<i32>, rules: &Vec<(i32, i32)>) -> (bool, Vec<i32>) {
+    let mut fixed_order = order.clone();
+    let mut has_changed = false;
+
+    for _ in 0..rules.len() {
+        // Repeat to propagate changes fully
+        let mut updated = false;
+
+        for &(before, after) in rules {
+            if let (Some(before_idx), Some(after_idx)) = (
+                fixed_order.iter().position(|&x| x == before),
+                fixed_order.iter().position(|&x| x == after),
+            ) {
+                if before_idx > after_idx {
+                    fixed_order.swap(before_idx, after_idx);
+                    updated = true;
+                    has_changed = true;
+                }
+            }
+        }
+
+        if !updated {
+            break; // Exit early if no changes are made
+        }
+    }
+
+    (has_changed, fixed_order)
+}
+
+fn solve_part2(input: &str) -> i32 {
+    let (rules, orders) = extract_rules_and_orders(input);
+
+    let mut fixed_orders: Vec<Vec<i32>> = Vec::new();
+
+    for order in orders {
+        let (has_changed, fixed_order) = fix_order(&order, &rules);
+        if has_changed {
+            fixed_orders.push(fixed_order);
+        }
+    }
+
+    let middle_sum: i32 = fixed_orders
+        .iter()
+        .map(|order| order[order.len() / 2])
+        .sum();
+
+    middle_sum
+}
 
 fn main() {
     let input = fs::read_to_string("input.txt").expect("Failed to read input file");
     let part1 = solve_part1(&input);
     println!("Part 1: {}", part1);
 
-    // let part2 = solve_part2(&input);
-    // println!("Part 2: {}", part2);
+    let part2 = solve_part2(&input);
+    println!("Part 2: {}", part2);
 }
 
 #[cfg(test)]
@@ -128,17 +173,15 @@ mod tests {
     fn test_part1() {
         let input = get_input();
         let file_input = get_file_input();
-        // update expected values
         assert_eq!(solve_part1(input), 143);
         assert_eq!(solve_part1(&file_input), 6041);
     }
 
-    /*#[test]
+    #[test]
     fn test_part2() {
         let input = get_input();
         let file_input = get_file_input();
-        update expected values
-        assert_eq!(solve_part2(input), 1);
-        assert_eq!(solve_part2(&file_input), 1);
-    }*/
+        assert_eq!(solve_part2(input), 123);
+        assert_eq!(solve_part2(&file_input), 4884);
+    }
 }
