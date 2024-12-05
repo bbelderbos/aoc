@@ -25,47 +25,72 @@ fn main() {
         return;
     }
 
-    if let Err(e) = Command::new("cargo").arg("init").arg(&folder_name).status() {
+    if let Err(e) = Command::new("cargo")
+        .arg("init")
+        .arg("--vcs")
+        .arg("none")
+        .arg(&folder_name)
+        .status()
+    {
         eprintln!("Error running cargo init: {}", e);
         return;
     }
 
     let template_code = r#"use std::fs;
 
-fn parse_input(input: &str) -> ! {
+fn parse_input(input: &str) -> &str {
+    input.trim()
+}
+
+fn solve_part1(input: &str) -> i32 {
     todo!();
 }
 
-fn solve_part1(data: &[i32]) -> i32 {
-    todo!();
-}
-
-// fn solve_part2(data: &[i32]) -> i32 {
-//    todo!();
+// fn solve_part2(input: &str) -> i32 {
+//     todo!();
 // }
 
 fn main() {
     let input = fs::read_to_string("input.txt").expect("Failed to read input file");
     let data = parse_input(&input);
 
-    let part1 = solve_part1(&data);
+    let part1 = solve_part1(data);
     println!("Part 1: {}", part1);
 
-    // let part2 = solve_part2(&data);
+    // let part2 = solve_part2(data);
     // println!("Part 2: {}", part2);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+
+    fn get_input() -> &'static str {
+        "paste example input here"
+        .trim()
+    }
+
+    fn get_file_input() -> String {
+        fs::read_to_string("input.txt").expect("Failed to read input file")
+    }
 
     #[test]
-    fn test_examples() {
-        let example_input = "1\n2\n3\n4\n5";
-        let data = parse_input(example_input);
+    fn test_part1() {
+        let input = get_input();
+        let file_input = get_file_input();
+        // update expected values
+        assert_eq!(solve_part1(input), 1);
+        assert_eq!(solve_part1(&file_input), 1);
+    }
 
-        assert_eq!(solve_part1(&data), 15);
-        // assert_eq!(solve_part2(&data), 5);
+    #[test]
+    fn test_part2() {
+        let input = get_input();
+        let file_input = get_file_input();
+        // update expected values
+        assert_eq!(solve_part2(input), 1);
+        assert_eq!(solve_part2(&file_input), 1);
     }
 }
 "#;
