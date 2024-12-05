@@ -84,14 +84,14 @@ mod tests {
         assert_eq!(solve_part1(&file_input), 1);
     }
 
-    #[test]
+    /*#[test]
     fn test_part2() {
         let input = get_input();
         let file_input = get_file_input();
         // update expected values
         assert_eq!(solve_part2(input), 1);
         assert_eq!(solve_part2(&file_input), 1);
-    }
+    }*/
 }
 "#;
 
