@@ -52,12 +52,11 @@ fn solve_part1(input: &str) -> i32 {
 
 fn main() {
     let input = fs::read_to_string("input.txt").expect("Failed to read input file");
-    let data = parse_input(&input);
 
-    let part1 = solve_part1(data);
+    let part1 = solve_part1(&input);
     println!("Part 1: {}", part1);
 
-    // let part2 = solve_part2(data);
+    // let part2 = solve_part2(&input);
     // println!("Part 2: {}", part2);
 }
 
@@ -88,7 +87,6 @@ mod tests {
     fn test_part2() {
         let input = get_input();
         let file_input = get_file_input();
-        // update expected values
         assert_eq!(solve_part2(input), 1);
         assert_eq!(solve_part2(&file_input), 1);
     }*/
