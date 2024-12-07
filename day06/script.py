@@ -1,7 +1,7 @@
 from enum import Enum
 from itertools import cycle
 from typing import NamedTuple
-# from pprint import pp
+from pathlib import Path
 
 
 class Direction(Enum):
@@ -28,16 +28,16 @@ def find_in_grid(grid: list[str], target: str = "^") -> Position:
     raise ValueError(f"{target} not found in grid")
 
 
-directions = cycle([d.value for d in Direction])
-
-
 def traverse_grid(grid, start: Position | None = None) -> int:
     if start is None:
         start = find_in_grid(grid)
 
-    processed = set()
+    directions = cycle([d.value for d in Direction])
     direction = next(directions)
+
     i, j = start
+    processed = set()
+
     while True:
         processed.add(Position(i, j))
         next_pos = Position(i + direction[0], j + direction[1])
@@ -54,7 +54,16 @@ def traverse_grid(grid, start: Position | None = None) -> int:
         i, j = next_pos
 
 
-if __name__ == "__main__":
+def solve_part1(data: str) -> int:
+    grid = parse_grid(data)
+    return traverse_grid(grid)
+
+
+# def solve_part2(data: str) -> int:
+#     """Solve part 2 of the problem."""
+
+
+def main():
     data = """
 ....#.....
 .........#
@@ -67,16 +76,20 @@ if __name__ == "__main__":
 #.........
 ......#...
 """.strip()
+    input_file = (Path(__file__).parent / "input.txt").read_text().strip()
 
-    """
-    grid = parse_grid(data)
-    count = traverse_grid(grid)
-    assert count == 41
-    """
+    part1_test = solve_part1(data)
+    assert part1_test == 41
+    part1_result = solve_part1(input_file)
+    print(f"Part 1: {part1_result}")
+    assert part1_result == 4758
 
-    with open("input.txt", "r") as f:
-        data = f.read()
+    # part2_test = solve_part2(data)
+    # assert part2_test == 0
+    # part2_result = solve_part2(input_file)
+    # print(f"Part 2: {part2_result}")
+    # assert part2_result == 0
 
-    grid = parse_grid(data)
-    count = traverse_grid(grid)
-    assert count == 4758
+
+if __name__ == "__main__":
+    main()
