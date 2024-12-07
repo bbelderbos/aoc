@@ -3,8 +3,8 @@ use std::fs;
 
 #[derive(Debug)]
 struct Operation {
-    target_result: i64,
-    operations: Vec<i64>,
+    target_result: i64,   // Use i64 for larger values
+    operations: Vec<i32>, // Keep i32 for smaller inputs
 }
 
 fn add(a: i64, b: i64) -> i64 {
@@ -16,67 +16,66 @@ fn mul(a: i64, b: i64) -> i64 {
 }
 
 fn concat(a: i64, b: i64) -> i64 {
-    let mut concatenated = a.to_string();
-    concatenated.push_str(&b.to_string());
-    concatenated.parse::<i64>().unwrap()
+    let b_len = (b as f64).log10().floor() as u32 + 1; // Number of digits in `b`
+    a * 10_i64.pow(b_len) + b
 }
 
 const OPS: &[fn(i64, i64) -> i64] = &[add, mul];
 const OPS2: &[fn(i64, i64) -> i64] = &[add, mul, concat];
 
-fn parse_data(data: &str) -> impl Iterator<Item = Operation> + '_ {
-    data.lines().map(|row| {
-        let mut parts = row.split(": ");
-        let target_result = parts.next().unwrap().parse::<i64>().unwrap();
-        let operations = parts
-            .next()
-            .unwrap()
-            .split_whitespace()
-            .map(|n| n.parse::<i64>().unwrap())
-            .collect::<Vec<i64>>();
+fn parse_data(data: &str) -> Vec<Operation> {
+    data.lines()
+        .map(|row| {
+            let mut parts = row.split(": ");
+            let target_result = parts.next().unwrap().parse::<i64>().unwrap();
+            let operations = parts
+                .next()
+                .unwrap()
+                .split_whitespace()
+                .map(|n| n.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>();
 
-        Operation {
-            target_result,
-            operations,
-        }
-    })
+            Operation {
+                target_result,
+                operations,
+            }
+        })
+        .collect()
 }
 
 fn solve_part1(input: &str, ops: &[fn(i64, i64) -> i64]) -> i64 {
     let data = parse_data(input);
-    let mut valid: Vec<i64> = Vec::new();
+    let mut total = 0;
 
     for operation in data {
         let mut found = false;
 
-        // Convert `ops` to owned items for multi_cartesian_product
-        for combo in vec![ops.to_vec(); operation.operations.len() - 1]
-            .into_iter()
+        // Generate operator combinations dynamically
+        for combo in std::iter::repeat(ops)
+            .take(operation.operations.len() - 1)
             .multi_cartesian_product()
         {
             if found {
                 break; // Exit if a valid result has already been found
             }
 
-            let mut result = operation.operations[0];
-            let mut is_valid = true;
+            let mut result = operation.operations[0] as i64; // Promote to i64 for computation
 
             for (&num, op) in operation.operations[1..].iter().zip(combo.iter()) {
-                result = op(result, num);
+                result = op(result, num as i64); // Promote num to i64 for operations
                 if result > operation.target_result {
-                    is_valid = false; // Prune invalid paths
-                    break;
+                    break; // Prune invalid paths early
                 }
             }
 
-            if is_valid && result == operation.target_result {
-                valid.push(result);
+            if result == operation.target_result {
+                total += result;
                 found = true; // Stop evaluating more combinations
             }
         }
     }
 
-    valid.iter().sum()
+    total
 }
 
 fn solve_part2(input: &str, ops2: &[fn(i64, i64) -> i64]) -> i64 {
