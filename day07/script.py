@@ -1,3 +1,4 @@
+from functools import cache
 from itertools import product
 from operator import add, mul
 from pathlib import Path
@@ -34,6 +35,7 @@ def solve_part1(data: str, ops: list[Callable] = [add, mul]) -> int:
     return sum(valid)
 
 
+@cache
 def concat(*args):
     return int("".join(str(a) for a in args))
 
