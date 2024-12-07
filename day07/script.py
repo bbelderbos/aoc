@@ -7,13 +7,16 @@ from typing import Callable, Generator, NamedTuple
 
 class Operation(NamedTuple):
     target_result: int
-    operations: list[int]
+    operations: tuple[int]
+
+
+valid_results = set()
 
 
 def parse_data(data: str) -> Generator[Operation, None, None]:
     for row in data.splitlines():
         res, ops = row.split(": ")
-        yield Operation(int(res), [int(o) for o in ops.split()])
+        yield Operation(int(res), tuple(int(o) for o in ops.split()))
 
 
 def solve_part1(data: str, ops: list[Callable] = [add, mul]) -> int:
@@ -21,6 +24,10 @@ def solve_part1(data: str, ops: list[Callable] = [add, mul]) -> int:
     parsed_data = parse_data(data)
     valid = []
     for operation in parsed_data:
+        if operation in valid_results:
+            valid.append(operation.target_result)
+            continue
+
         combos = product(ops, repeat=len(operation.operations) - 1)
         for combo in combos:
             result = operation.operations[0]
@@ -30,6 +37,7 @@ def solve_part1(data: str, ops: list[Callable] = [add, mul]) -> int:
 
             if result == operation.target_result:
                 valid.append(operation.target_result)
+                valid_results.add(operation)
                 break
 
     return sum(valid)
