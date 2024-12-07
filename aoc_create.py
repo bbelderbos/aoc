@@ -23,7 +23,7 @@ def solve_part1(data: str) -> int:
 
 def main():
     data = "".strip()
-    input_file = (Path(__file__).parent / "input.txt").read_text()
+    input_file = (Path(__file__).parent / "input.txt").read_text().strip()
 
     part1_test = solve_part1(data)
     assert part1_test == 0
