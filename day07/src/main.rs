@@ -16,19 +16,13 @@ fn mul(a: i64, b: i64) -> i64 {
 }
 
 fn concat(a: i64, b: i64) -> i64 {
-    let concatenated = format!("{}{}", a, b);
+    let mut concatenated = a.to_string();
+    concatenated.push_str(&b.to_string());
     concatenated.parse::<i64>().unwrap()
 }
 
 const OPS: &[fn(i64, i64) -> i64] = &[add, mul];
 const OPS2: &[fn(i64, i64) -> i64] = &[add, mul, concat];
-
-fn generate_combos(ops: &[fn(i64, i64) -> i64], length: usize) -> Vec<Vec<fn(i64, i64) -> i64>> {
-    vec![ops.to_vec(); length]
-        .into_iter()
-        .multi_cartesian_product()
-        .collect()
-}
 
 fn parse_data(data: &str) -> impl Iterator<Item = Operation> + '_ {
     data.lines().map(|row| {
@@ -51,19 +45,37 @@ fn parse_data(data: &str) -> impl Iterator<Item = Operation> + '_ {
 fn solve_part1(input: &str, ops: &[fn(i64, i64) -> i64]) -> i64 {
     let data = parse_data(input);
     let mut valid: Vec<i64> = Vec::new();
+
     for operation in data {
-        let combos = generate_combos(ops, operation.operations.len() - 1);
-        for combo in combos {
-            let mut result = operation.operations[0];
-            for (num, op) in operation.operations[1..].iter().zip(combo) {
-                result = op(result, *num);
+        let mut found = false;
+
+        // Convert `ops` to owned items for multi_cartesian_product
+        for combo in vec![ops.to_vec(); operation.operations.len() - 1]
+            .into_iter()
+            .multi_cartesian_product()
+        {
+            if found {
+                break; // Exit if a valid result has already been found
             }
-            if result == operation.target_result {
+
+            let mut result = operation.operations[0];
+            let mut is_valid = true;
+
+            for (&num, op) in operation.operations[1..].iter().zip(combo.iter()) {
+                result = op(result, num);
+                if result > operation.target_result {
+                    is_valid = false; // Prune invalid paths
+                    break;
+                }
+            }
+
+            if is_valid && result == operation.target_result {
                 valid.push(result);
-                break;
+                found = true; // Stop evaluating more combinations
             }
         }
     }
+
     valid.iter().sum()
 }
 
