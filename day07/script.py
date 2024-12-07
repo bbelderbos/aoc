@@ -7,7 +7,7 @@ from typing import Callable, Generator, NamedTuple
 
 class Operation(NamedTuple):
     target_result: int
-    operations: tuple[int]
+    operations: tuple[int, ...]
 
 
 valid_results = set()
@@ -46,8 +46,8 @@ def solve_part1(data: str, ops: list[Callable] = [add, mul]) -> int:
 
 
 @cache
-def concat(*args):
-    return int("".join(str(a) for a in args))
+def concat(left: int, right: int) -> int:
+    return int(f"{left}{right}")
 
 
 def solve_part2(data: str) -> int:
