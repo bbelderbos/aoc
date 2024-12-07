@@ -24,6 +24,8 @@ def solve_part1(data: str, ops: list[Callable] = [add, mul]) -> int:
     parsed_data = parse_data(data)
     valid = []
     for operation in parsed_data:
+        # reuse the results we've already seen in case we call this
+        # function multiple times (= reuse part 2)
         if operation in valid_results:
             valid.append(operation.target_result)
             continue
