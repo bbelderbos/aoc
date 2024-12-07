@@ -21,3 +21,5 @@ Cargo.lock
 #.idea/
 aoc_create
 Cargo.toml
+venv
+.DS_Store
