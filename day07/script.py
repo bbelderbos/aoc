@@ -33,11 +33,15 @@ def solve_part1(data: str, ops: list[Callable] = [add, mul]) -> int:
         combos = product(ops, repeat=len(operation.operations) - 1)
         for combo in combos:
             result = operation.operations[0]
+            is_valid = True
 
             for num, op in zip(operation.operations[1:], combo):
                 result = op(result, num)
+                if result > operation.target_result:
+                    is_valid = False
+                    break
 
-            if result == operation.target_result:
+            if is_valid and result == operation.target_result:
                 valid.append(operation.target_result)
                 valid_results.add(operation)
                 break
