@@ -20,6 +20,7 @@ def timeit(func):
             return result
         else:
             return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -39,7 +40,7 @@ class Machine(NamedTuple):
     prize: Location
 
 
-def parse_data(data: str) -> list[Machine]:
+def parse_data(data: str, add_to_price=0) -> list[Machine]:
     blocks = data.split("\n\n")
     machines = []
     for block in blocks:
@@ -52,7 +53,7 @@ def parse_data(data: str) -> list[Machine]:
             if name == "Prize":
                 x = int(move[0].split("=")[1])
                 y = int(move[1].split("=")[1])
-                prize = Location(x, y)
+                prize = Location(x + add_to_price, y + add_to_price)
             else:
                 x = int(move[0].split("+")[1])
                 y = int(move[1].split("+")[1])
@@ -116,8 +117,37 @@ def solve_part1_parallel(data: str, timeit=True) -> int:
     return sum(result for result in results if result > 0)
 
 
-# def solve_part2(data: str) -> int:
-#     """Solve part 2 of the problem."""
+def optimal_button_cost(button_a, button_b, prize):
+    ax, ay = button_a.move_to.x, button_a.move_to.y
+    bx, by = button_b.move_to.x, button_b.move_to.y
+    px, py = prize.x, prize.y
+
+    # Solve for b (Button B presses) using elimination
+    b_presses = (px * ay - py * ax) // (ay * bx - by * ax)
+    # Solve for a (Button A presses) using the result of b
+    a_presses = (px * by - py * bx) // (by * ax - bx * ay)
+
+    # Validate the solution
+    if ax * a_presses + bx * b_presses == px and ay * a_presses + by * b_presses == py:
+        total_cost = 3 * a_presses + b_presses
+        return a_presses, b_presses, total_cost
+    else:
+        return None, None, None
+
+
+def solve_part2(data: str) -> int:
+    """Solve part 2 of the problem."""
+    machines = parse_data(data, add_to_price=10000000000000)
+    total_cost = 0
+
+    for machine in machines:
+        button_a, button_b = machine.buttons
+        a, b, cost = optimal_button_cost(button_a, button_b, machine.prize)
+
+        if cost is not None:
+            total_cost += cost
+
+    return total_cost
 
 
 def main():
@@ -149,11 +179,11 @@ Prize: X=18641, Y=10279
     print(f"Part 1 (parallel): {part1_result}")
     assert part1_result == 29517
 
-    # part2_test = solve_part2(data)
-    # assert part2_test == 0
-    # part2_result = solve_part2(input_file)
-    # print(f"Part 2: {part2_result}")
-    # assert part2_result == 0
+    part2_test = solve_part2(data)
+    assert part2_test == 875318608908
+    part2_result = solve_part2(input_file)
+    print(f"Part 2: {part2_result}")
+    assert part2_result == 103570327981381
 
 
 if __name__ == "__main__":
