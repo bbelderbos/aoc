@@ -2,7 +2,9 @@ from enum import Enum
 from itertools import cycle
 from typing import NamedTuple
 from pathlib import Path
+
 # from pprint import pp
+
 
 class Direction(Enum):
     NORTH = (-1, 0)
@@ -53,27 +55,27 @@ def check_infinite_loop(grid: list[list[str]], start: Position) -> bool:
     directions = cycle([d.value for d in Direction])
     direction = next(directions)
 
-    #pp(grid)
     i, j = start
     visited_states = set()
 
     while True:
         current_state = (Position(i, j), direction)
         if current_state in visited_states:
-            return True  # A true infinite loop is detected
+            return True  # Infinite loop detected
         visited_states.add(current_state)
 
         next_pos = Position(i + direction[0], j + direction[1])
 
-        try:
-            if grid[next_pos.x][next_pos.y] in ("#", "O"):
-                direction = next(directions)
-                continue
-        except IndexError:
-            return False  # The guard exits the grid, so no loop
+        # Check boundaries
+        if not (0 <= next_pos.x < len(grid) and 0 <= next_pos.y < len(grid[0])):
+            return False  # Exit grid, no loop
+
+        # Handle obstacles
+        if grid[next_pos.x][next_pos.y] in ("#", "O"):
+            direction = next(directions)
+            continue
 
         i, j = next_pos
-
 
 
 def solve_part1(data: str) -> int:
@@ -108,7 +110,6 @@ def solve_part2(data: str) -> int:
     return block_positions
 
 
-
 def main():
     data = """
 ....#.....
@@ -134,12 +135,11 @@ def main():
 
     # Part 2
     part2_test = solve_part2(data)
-    assert part2_test == 6, f"{part2_test} is not 6"
+    assert part2_test == 6
     part2_result = solve_part2(input_file)
     print(f"Part 2: {part2_result}")
-    assert part2_result == 0
+    assert part2_result == 1670
 
 
 if __name__ == "__main__":
     main()
-
