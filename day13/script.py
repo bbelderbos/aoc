@@ -1,4 +1,5 @@
-from collections import deque
+from concurrent.futures import ProcessPoolExecutor
+from heapq import heappush, heappop
 from pathlib import Path
 from typing import NamedTuple
 
@@ -48,11 +49,12 @@ def parse_data(data: str) -> list[Machine]:
 
 
 def optimal_button_presses(machine: Machine, max_pushes: int = MAX_PUSHES) -> int:
-    queue = deque([(Location(0, 0), [0] * len(machine.buttons), 0)])
-    visited = set([(Location(0, 0), tuple([0] * len(machine.buttons)))])
+    queue = []
+    heappush(queue, (0, Location(0, 0), [0] * len(machine.buttons)))
+    visited = set([(Location(0, 0), 0)])
 
     while queue:
-        current_loc, button_pushes, total_cost = queue.popleft()
+        total_cost, current_loc, button_pushes = heappop(queue)
 
         if current_loc == machine.prize:
             return total_cost
@@ -62,25 +64,30 @@ def optimal_button_presses(machine: Machine, max_pushes: int = MAX_PUSHES) -> in
                 next_loc = Location(
                     current_loc.x + button.move_to.x, current_loc.y + button.move_to.y
                 )
+
+                # skip if the next location is out of bounds
+                if next_loc.x > machine.prize.x or next_loc.y > machine.prize.y:
+                    continue
+
                 next_pushes = button_pushes[:]
                 next_pushes[i] += 1
                 next_cost = total_cost + button.cost
 
-                state = (next_loc, tuple(next_pushes))
+                state = (next_loc, next_cost)
                 if state not in visited:
                     visited.add(state)
-                    queue.append((next_loc, next_pushes, next_cost))
+                    heappush(queue, (next_cost, next_loc, next_pushes))
 
     return -1
 
 
 def solve_part1(data: str) -> int:
     machines = parse_data(data)
-    return sum(
-        result
-        for machine in machines
-        if (result := optimal_button_presses(machine)) > 0
-    )
+
+    with ProcessPoolExecutor() as executor:
+        results = executor.map(optimal_button_presses, machines)
+
+    return sum(result for result in results if result > 0)
 
 
 # def solve_part2(data: str) -> int:
