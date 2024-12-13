@@ -1,5 +1,5 @@
 import time
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from functools import wraps
 from heapq import heappush, heappop
 from pathlib import Path
@@ -117,6 +117,17 @@ def solve_part1_parallel(data: str, timeit=True) -> int:
     return sum(result for result in results if result > 0)
 
 
+@timeit
+def solve_part1_threaded(data: str, timeit=True) -> int:
+    machines = parse_data(data)
+
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(optimal_button_presses, machines)
+
+    return sum(result for result in results if result > 0)
+
+
+
 def optimal_button_cost(button_a, button_b, prize):
     ax, ay = button_a.move_to.x, button_a.move_to.y
     bx, by = button_b.move_to.x, button_b.move_to.y
@@ -172,9 +183,15 @@ Prize: X=18641, Y=10279
 
     part1_test = solve_part1(data, timeit=False)
     assert part1_test == 480
+
     part1_result = solve_part1(input_file)
     print(f"Part 1: {part1_result}")
     assert part1_result == 29517
+
+    part1_result = solve_part1_threaded(input_file)
+    print(f"Part 1 (threaded): {part1_result}")
+    assert part1_result == 29517
+
     part1_result = solve_part1_parallel(input_file)
     print(f"Part 1 (parallel): {part1_result}")
     assert part1_result == 29517
