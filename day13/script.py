@@ -1,4 +1,6 @@
+import time
 from concurrent.futures import ProcessPoolExecutor
+from functools import wraps
 from heapq import heappush, heappop
 from pathlib import Path
 from typing import NamedTuple
@@ -6,6 +8,19 @@ from typing import NamedTuple
 MAX_PUSHES = 100
 COST_BTN_A = 3
 COST_BTN_B = 1
+
+
+def timeit(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if kwargs.pop("timeit", True):
+            start = time.perf_counter()
+            result = func(*args, **kwargs)
+            print(f"{func.__name__} took {time.perf_counter() - start:.6f} seconds")
+            return result
+        else:
+            return func(*args, **kwargs)
+    return wrapper
 
 
 class Location(NamedTuple):
@@ -81,7 +96,18 @@ def optimal_button_presses(machine: Machine, max_pushes: int = MAX_PUSHES) -> in
     return -1
 
 
-def solve_part1(data: str) -> int:
+@timeit
+def solve_part1(data: str, timeit=True) -> int:
+    machines = parse_data(data)
+    return sum(
+        result
+        for machine in machines
+        if (result := optimal_button_presses(machine)) > 0
+    )
+
+
+@timeit
+def solve_part1_parallel(data: str, timeit=True) -> int:
     machines = parse_data(data)
 
     with ProcessPoolExecutor() as executor:
@@ -114,10 +140,13 @@ Prize: X=18641, Y=10279
 """.strip()
     input_file = (Path(__file__).parent / "input.txt").read_text().strip()
 
-    part1_test = solve_part1(data)
+    part1_test = solve_part1(data, timeit=False)
     assert part1_test == 480
     part1_result = solve_part1(input_file)
     print(f"Part 1: {part1_result}")
+    assert part1_result == 29517
+    part1_result = solve_part1_parallel(input_file)
+    print(f"Part 1 (parallel): {part1_result}")
     assert part1_result == 29517
 
     # part2_test = solve_part2(data)
