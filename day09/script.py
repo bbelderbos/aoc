@@ -1,5 +1,7 @@
 from collections import deque
+from itertools import chain
 from pathlib import Path
+from typing import Iterable
 
 
 def create_blocks(data: str) -> list[str]:
@@ -17,8 +19,12 @@ def create_blocks(data: str) -> list[str]:
     return s
 
 
-def calc_checksum(compact: list[int]) -> int:
-    return sum(count * digit for count, digit in enumerate(compact))
+def calc_checksum(compact: list[int | str]) -> int:
+    return sum(
+        count * int(digit)
+        for count, digit in enumerate(compact)
+        if digit != "."
+    )
 
 
 def backfill(blocks: list[str]) -> list[int]:
@@ -46,6 +52,44 @@ def backfill(blocks: list[str]) -> list[int]:
     return ret
 
 
+def chunkify(blocks: list[str]) -> list[list[str]]:
+    files = []
+    file = []
+    last_file = "0"
+    for b in blocks:
+        if b != last_file:
+            files.append(file)
+            file = []
+            last_file = b
+        file.append(b)
+    files.append(file)
+    return files
+
+
+def backfill_part2(blocks: list[str]) -> Iterable[int]:
+    chunks = chunkify(blocks)
+    copy = chunks.copy()
+    while True:
+        try:
+            chunk = chunks.pop()
+        except IndexError:
+            break
+        index = copy.index(chunk)
+        if "." in chunk:
+            continue
+        for i, c in enumerate(chunks):
+            if "." not in c:
+                continue
+            if len(chunk) <= c.count("."):
+                start = c.index(".")
+                end = start + len(chunk)
+                copy[i][start:end] = chunk
+                copy[index] = ["."] * len(chunk)
+                break
+
+    return chain(*copy)
+
+
 def solve_part1(data: str) -> int:
     blocks = create_blocks(data)
     compact = backfill(blocks)
@@ -53,8 +97,12 @@ def solve_part1(data: str) -> int:
     return checksum
 
 
-# def solve_part2(data: str) -> int:
-#     """Solve part 2 of the problem."""
+def solve_part2(data: str) -> int:
+    """Solve part 2 of the problem."""
+    blocks = create_blocks(data)
+    compact = backfill_part2(blocks)
+    checksum = calc_checksum(compact)
+    return checksum
 
 
 def main():
@@ -69,11 +117,11 @@ def main():
     print(f"Part 1: {part1_result}")
     assert part1_result == 6421128769094
 
-    # part2_test = solve_part2(data)
-    # assert part2_test == 0
-    # part2_result = solve_part2(input_file)
-    # print(f"Part 2: {part2_result}")
-    # assert part2_result == 0
+    part2_test = solve_part2(data)
+    assert part2_test == 2858
+    part2_result = solve_part2(input_file)
+    print(f"Part 2: {part2_result}")
+    assert part2_result == 6448168620520
 
 
 if __name__ == "__main__":
