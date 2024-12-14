@@ -47,7 +47,7 @@ def solve_part1(data: str) -> int:
     for x in range(rows):
         for y in range(cols):
             if grid[x][y] == 0:
-                endpoints = set()  # endpoints are unique
+                endpoints: set[tuple[int, int]] = set()
                 find_paths(grid, x, y, -1, set(), endpoints)
                 score = len(endpoints)
                 trailhead_scores.append(score)
