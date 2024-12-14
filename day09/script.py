@@ -19,7 +19,7 @@ def create_blocks(data: str) -> list[str]:
     return s
 
 
-def calc_checksum(compact: list[int | str]) -> int:
+def calc_checksum(compact: Iterable[int | str]) -> int:
     return sum(
         count * int(digit)
         for count, digit in enumerate(compact)
@@ -27,7 +27,7 @@ def calc_checksum(compact: list[int | str]) -> int:
     )
 
 
-def backfill(blocks: list[str]) -> list[int]:
+def backfill_part1(blocks: list[str]) -> list[int]:
     copy = deque(blocks)
 
     num_dots = blocks.count(".")
@@ -54,7 +54,7 @@ def backfill(blocks: list[str]) -> list[int]:
 
 def chunkify(blocks: list[str]) -> list[list[str]]:
     files = []
-    file = []
+    file: list[str] = []
     last_file = "0"
     for b in blocks:
         if b != last_file:
@@ -66,7 +66,7 @@ def chunkify(blocks: list[str]) -> list[list[str]]:
     return files
 
 
-def backfill_part2(blocks: list[str]) -> Iterable[int]:
+def backfill_part2(blocks: list[str]) -> Iterable[str]:
     chunks = chunkify(blocks)
     copy = chunks.copy()
     while True:
@@ -92,7 +92,7 @@ def backfill_part2(blocks: list[str]) -> Iterable[int]:
 
 def solve_part1(data: str) -> int:
     blocks = create_blocks(data)
-    compact = backfill(blocks)
+    compact = backfill_part1(blocks)
     checksum = calc_checksum(compact)
     return checksum
 
