@@ -1,8 +1,10 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import NamedTuple
 from pathlib import Path
 
 NUM_SECONDS = 100
+TREE_BASE_THRESHOLD = 10
 
 
 class Position(NamedTuple):
@@ -65,9 +67,9 @@ def solve_part1(data: str, x: int, y: int) -> int:
 
     # exclude middle row and middle column
     quadrant_1 = [row[:mid_col] for row in grid[:mid_row]]
-    quadrant_2 = [row[mid_col + 1:] for row in grid[:mid_row]]
-    quadrant_3 = [row[:mid_col] for row in grid[mid_row + 1:]]
-    quadrant_4 = [row[mid_col + 1:] for row in grid[mid_row + 1:]]
+    quadrant_2 = [row[mid_col + 1 :] for row in grid[:mid_row]]
+    quadrant_3 = [row[:mid_col] for row in grid[mid_row + 1 :]]
+    quadrant_4 = [row[mid_col + 1 :] for row in grid[mid_row + 1 :]]
 
     q1_sum = sum(c for row in quadrant_1 for c in row)
     q2_sum = sum(c for row in quadrant_2 for c in row)
@@ -77,8 +79,43 @@ def solve_part1(data: str, x: int, y: int) -> int:
     return q1_sum * q2_sum * q3_sum * q4_sum
 
 
-# def solve_part2(data: str) -> int:
-#     """Solve part 2 of the problem."""
+def _longest_consecutive(nums: list[int]) -> int:
+    max_streak = 0
+    current_streak = 0
+
+    for i in range(len(nums)):
+        if i == 0 or nums[i] == nums[i - 1] + 1:
+            current_streak += 1
+            max_streak = max(max_streak, current_streak)
+        else:
+            current_streak = 1
+
+    return max_streak
+
+
+def solve_part2(data: str, x: int, y: int) -> int:
+    robots = parse_robots(data)
+
+    active_rows: defaultdict[int, list[int]] = defaultdict(list)
+
+    for second in range(1, 1_000_001):
+        active_rows.clear()
+
+        for robot in robots:
+            robot.move(x, y)
+            row = robot.current.y
+            col = robot.current.x
+
+            active_rows[row].append(col)
+
+        for row, positions in active_rows.items():
+            positions.sort()  # sort to find consecutive robots
+            max_consecutive = _longest_consecutive(positions)
+            if max_consecutive > TREE_BASE_THRESHOLD:
+                print(f"Row {row} has {max_consecutive} consecutive robots.")
+                return second
+
+    return -1
 
 
 def main():
@@ -104,11 +141,9 @@ p=9,5 v=-3,-3
     print(f"Part 1: {part1_result}")
     assert part1_result == 229069152
 
-    # part2_test = solve_part2(data)
-    # assert part2_test == 0
-    # part2_result = solve_part2(input_file)
-    # print(f"Part 2: {part2_result}")
-    # assert part2_result == 0
+    part2_result = solve_part2(input_file, 101, 103)
+    print(f"Part 2: {part2_result}")
+    assert part2_result == 7383
 
 
 if __name__ == "__main__":
