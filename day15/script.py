@@ -29,6 +29,18 @@ def _find_robot(grid: list[list[str]], char: str = "@"):
                 return r, c
 
 
+def _trace_line(
+    grid: list[list[str]], start: tuple[int, int], direction: tuple[int, int]
+) -> list[Position]:
+    r, c = start
+    line = []
+    while 0 <= r < len(grid) and 0 <= c < len(grid[0]):
+        line.append(Position(r, c, grid[r][c]))
+        r += direction[0]
+        c += direction[1]
+    return line
+
+
 def _calc_value_boxes(grid: list[list[str]]) -> int:
     total = 0
     for r in range(len(grid)):
@@ -38,53 +50,41 @@ def _calc_value_boxes(grid: list[list[str]]) -> int:
     return total
 
 
+def _update_bot(
+    grid: list[list[str]], old_pos: tuple[int, int], new_pos: tuple[int, int]
+) -> None:
+    grid[old_pos[0]][old_pos[1]] = "."
+    grid[new_pos[0]][new_pos[1]] = "@"
+
+
 def solve_part1(data: str) -> int:
     grid_str, instructions_str = data.split("\n\n")
     grid = [list(row) for row in grid_str.splitlines()]
-
-    instructions = list(instructions_str.replace("\n", ""))
+    instructions = instructions_str.replace("\n", "")
     pos = _find_robot(grid)
 
     for instruction in instructions:
-        # print(instruction)
         move = MOVES[instruction]
-
-        line = []
-        r, c = pos
-        while 0 <= r < len(grid) and 0 <= c < len(grid[0]):
-            line.append(Position(r, c, grid[r][c]))
-            r += move[0]
-            c += move[1]
-
+        line = _trace_line(grid, pos, move)
         all_chars = [p.value for p in line]
         wall = all_chars.index("#")
 
         if "." not in all_chars[:wall]:
-            # print_grid(grid)
             continue
-        if line[1].value == "#":
-            # print_grid(grid)
-            continue
-        if line[1].value == ".":  # move just the bot
-            grid[pos[0]][pos[1]] = "."
-            grid[line[1].r][line[1].c] = "@"
-            pos = line[1].r, line[1].c
-            # print_grid(grid)
-            continue
-        # move O and @ 1 pos
-        for i, box in enumerate(line[1:], start=1):
-            if box.value in "O.":
-                grid[box.r][box.c] = line[i - 1].value
-                if box.value == ".":
-                    break
-        # move the bot
-        grid[pos[0]][pos[1]] = "."
-        grid[line[1].r][line[1].c] = "@"
 
-        # print_grid(grid)
-        pos = line[1].r, line[1].c
+        if line[1].value == ".":
+            _update_bot(grid, pos, (line[1].r, line[1].c))
+            pos = (line[1].r, line[1].c)
+        else:
+            # boxes to move
+            for i, box in enumerate(line[1:], start=1):
+                if box.value in "O.":
+                    grid[box.r][box.c] = line[i - 1].value
+                    if box.value == ".":
+                        break
+            _update_bot(grid, pos, (line[1].r, line[1].c))
+            pos = (line[1].r, line[1].c)
 
-    # find boxes
     return _calc_value_boxes(grid)
 
 
