@@ -22,7 +22,7 @@ def solve_part1(data: str) -> int:
 
 
 def main():
-    data = "".strip()
+    data = (Path(__file__).parent / "input_small.txt").read_text().strip()
     input_file = (Path(__file__).parent / "input.txt").read_text().strip()
 
     part1_test = solve_part1(data)
