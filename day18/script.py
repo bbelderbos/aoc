@@ -10,7 +10,7 @@ def create_grid(x=70, y=70):
 
 
 def fill_grid(grid, coords):
-    for i, coord in enumerate(coords):
+    for coord in coords:
         x, y = int(coord[0]), int(coord[1])
         grid[y][x] = "#"
     return grid
@@ -60,8 +60,18 @@ def solve_part1(data: str, grid_size: int, num_bytes: int) -> int:
     return shortest_path(grid)
 
 
-# def solve_part2(data: str) -> int:
-#     """Solve part 2 of the problem."""
+def solve_part2(data: str, grid_size: int, num_bytes: int) -> int:
+    coords = [row.split(",") for row in data.splitlines()]
+    grid = create_grid(x=grid_size, y=grid_size)
+    grid = fill_grid(grid, coords[:num_bytes])
+    bytes_left = iter(coords[num_bytes:])
+    while True:
+        byte = next(bytes_left, None)
+        grid = fill_grid(grid, [byte])
+        path = shortest_path(grid)
+        if path == -1:
+            return ",".join(byte)
+    return -1
 
 
 def main():
@@ -74,11 +84,11 @@ def main():
     print(f"Part 1: {part1_result}")
     assert part1_result == 282
 
-    # part2_test = solve_part2(data)
-    # assert part2_test == 0
-    # part2_result = solve_part2(input_file)
-    # print(f"Part 2: {part2_result}")
-    # assert part2_result == 0
+    part2_test = solve_part2(data, grid_size=7, num_bytes=12)
+    assert part2_test == "6,1"
+    part2_result = solve_part2(input_file, grid_size=71, num_bytes=1024)
+    print(f"Part 2: {part2_result}")
+    assert part2_result == "64,29"
 
 
 if __name__ == "__main__":
