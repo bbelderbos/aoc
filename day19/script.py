@@ -24,6 +24,22 @@ def can_create_design(words, target):
     return False
 
 
+@cache
+def get_all_designs(words, target):
+    total = 0
+
+    if target == "":
+        return 1
+
+    for word in words:
+        if target.startswith(word):
+            remainder = target.removeprefix(word)
+            options = get_all_designs(words, remainder)
+            total += options
+
+    return total
+
+
 def can_create_design_iterative(patterns, target):
     stack = [target]
     visited = set()
@@ -60,8 +76,10 @@ def solve_part1(data: str, iteration_over_recursion=False) -> int:
     return count
 
 
-# def solve_part2(data: str) -> int:
-#     """Solve part 2 of the problem."""
+def solve_part2(data: str) -> int:
+    patterns, designs = parse_data(data)
+    patterns = tuple(patterns)
+    return sum(get_all_designs(patterns, design) for design in designs)
 
 
 def main():
@@ -76,11 +94,11 @@ def main():
     print(f"Part 1: {part1_result}")
     assert part1_result == part1_result_it == 304
 
-    # part2_test = solve_part2(data)
-    # assert part2_test == 0
-    # part2_result = solve_part2(input_file)
-    # print(f"Part 2: {part2_result}")
-    # assert part2_result == 0
+    part2_test = solve_part2(data)
+    assert part2_test == 16
+    part2_result = solve_part2(input_file)
+    print(f"Part 2: {part2_result}")
+    assert part2_result == 705756472327497
 
 
 if __name__ == "__main__":
