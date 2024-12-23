@@ -177,9 +177,8 @@ Cargo.lock
 **/*.rs.bk
 *.pdb
 aoc_create
-Cargo.toml
-venv
-.DS_Store
 
 # puzzle inputs
 **input*.txt
+
+.DS_Store

@@ -1,0 +1,18 @@
+[package]
+name = "aoc2024"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [
+    "2024/day01/",
+    "2024/day02/",
+    "2024/day03/",
+    "2024/day04/",
+    "2024/day05/",
+    "2024/day06/",
+    "2024/day07/",
+    # switched to Python lol
+]
+
+[dependencies]
