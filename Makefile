@@ -34,4 +34,3 @@ format:
 .PHONY: lint
 lint:
 	$(CLIPPY)
-
